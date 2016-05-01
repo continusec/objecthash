@@ -21,7 +21,7 @@ func hash(t string, b []byte) [hashLength]byte {
 	var rr [hashLength]byte
 	copy(rr[:], r)
 	//fmt.Printf("= %x\n", rr)
-	return rr;
+	return rr
 }
 
 // FIXME: if What You Hash Is What You Get, then this needs to be safe
@@ -30,8 +30,9 @@ func hash(t string, b []byte) [hashLength]byte {
 type Set []interface{}
 
 type sortableHashes [][hashLength]byte
-func (h sortableHashes) Len() int { return len(h) }
-func (h sortableHashes) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
+
+func (h sortableHashes) Len() int           { return len(h) }
+func (h sortableHashes) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 func (h sortableHashes) Less(i, j int) bool { return bytes.Compare(h[i][:], h[j][:]) < 0 }
 
 func hashSet(s Set) [hashLength]byte {
@@ -70,12 +71,15 @@ type hashEntry struct {
 	vhash [hashLength]byte
 }
 type byKHash []hashEntry
-func (h byKHash) Len() int { return len(h) }
-func (h byKHash) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
-func (h byKHash) Less(i, j int) bool { return bytes.Compare(h[i].khash[:],
-	h[j].khash[:]) < 0 }
 
-func hashDict(d map[string]interface {}) [hashLength]byte {
+func (h byKHash) Len() int      { return len(h) }
+func (h byKHash) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
+func (h byKHash) Less(i, j int) bool {
+	return bytes.Compare(h[i].khash[:],
+		h[j].khash[:]) < 0
+}
+
+func hashDict(d map[string]interface{}) [hashLength]byte {
 	e := make([]hashEntry, len(d))
 	n := 0
 	for k, v := range d {
@@ -121,10 +125,10 @@ func floatNormalize(f float64) (s string) {
 		} else {
 			s += `0`
 		}
-		if (f >= 1) {
+		if f >= 1 {
 			panic(f)
 		}
-		if (len(s) >= 1000) {
+		if len(s) >= 1000 {
 			panic(s)
 		}
 		f *= 2
@@ -154,7 +158,7 @@ func ObjectHash(o interface{}) [hashLength]byte {
 		return hashList(v)
 	case string:
 		return hashUnicode(v)
-	case map[string]interface {}:
+	case map[string]interface{}:
 		return hashDict(v)
 	case float64:
 		return hashFloat(v)
