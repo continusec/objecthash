@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"golang.org/x/text/unicode/norm"
 	"sort"
 	"strings"
 )
@@ -21,8 +22,6 @@ var (
 const (
 	REDACTED_PREFIX = "***REDACTED*** Hash: "
 )
-
-//import "golang.org/x/text/unicode/norm"
 
 func hash(t byte, b []byte) []byte {
 	h := sha256.New()
@@ -76,8 +75,7 @@ func hashList(l []interface{}, redPref string) ([]byte, error) {
 }
 
 func hashUnicode(s string) ([]byte, error) {
-	//return hash(`u`, norm.NFC.Bytes([]byte(s)))
-	return hash('u', []byte(s)), nil
+	return hash('u', norm.NFC.Bytes([]byte(s))), nil
 }
 
 type hashEntry struct {
