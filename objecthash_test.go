@@ -182,7 +182,7 @@ func testRedactRT(t *testing.T, j string) {
 		t.FailNow()
 	}
 
-	un, err := Unredactible(redacted)
+	un, err := UnredactibleWithStdPrefix(redacted)
 	if err != nil {
 		t.Log(err)
 		t.FailNow()
@@ -251,7 +251,7 @@ func testFiltered(t *testing.T, j, filter string, failIfNotIn, failIfNotOut []st
 		t.FailNow()
 	}
 
-	unredacted, err := Unredactible(filtered)
+	unredacted, err := UnredactibleWithStdPrefix(filtered)
 	if err != nil {
 		t.Log(err)
 		t.FailNow()

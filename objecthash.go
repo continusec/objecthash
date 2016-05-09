@@ -280,30 +280,34 @@ func redactibleDict(p map[string]interface{}) (interface{}, error) {
 /*
  * Unredact stuff
  */
-func Unredactible(o interface{}) (interface{}, error) {
+func UnredactibleWithStdPrefix(o interface{}) (interface{}, error) {
+	return Unredactible(o, REDACTED_PREFIX)
+}
+
+func Unredactible(o interface{}, redPref string) (interface{}, error) {
 	switch v := o.(type) {
 	case []interface{}:
-		return unredactibleList(v)
+		return unredactibleList(v, redPref)
 	case map[string]interface{}:
-		return unredactibleDict(v)
+		return unredactibleDict(v, redPref)
 	default:
 		return o, nil
 	}
 }
 
-func unredactibleIt(o interface{}) (bool, interface{}, error) {
+func unredactibleIt(o interface{}, redPref string) (bool, interface{}, error) {
 	switch v := o.(type) {
 	case []interface{}:
 		if len(v) != 2 {
 			return false, nil, ErrUnrecognizedObjectType
 		}
-		rv, err := Unredactible(v[1])
+		rv, err := Unredactible(v[1], redPref)
 		if err != nil {
 			return false, nil, err
 		}
 		return true, rv, nil
 	case string:
-		if !strings.HasPrefix(v, REDACTED_PREFIX) {
+		if !strings.HasPrefix(v, redPref) {
 			return false, nil, ErrUnrecognizedObjectType
 		}
 		return false, nil, nil
@@ -312,11 +316,11 @@ func unredactibleIt(o interface{}) (bool, interface{}, error) {
 	}
 }
 
-func unredactibleList(p []interface{}) (interface{}, error) {
+func unredactibleList(p []interface{}, redPref string) (interface{}, error) {
 	rv := make([]interface{}, len(p))
 	for i, a := range p {
 		var err error
-		rv[i], err = Unredactible(a)
+		rv[i], err = Unredactible(a, redPref)
 		if err != nil {
 			return nil, err
 		}
@@ -324,10 +328,10 @@ func unredactibleList(p []interface{}) (interface{}, error) {
 	return rv, nil
 }
 
-func unredactibleDict(p map[string]interface{}) (interface{}, error) {
+func unredactibleDict(p map[string]interface{}, redPref string) (interface{}, error) {
 	rv := make(map[string]interface{})
 	for k, v := range p {
-		ok, v, err := unredactibleIt(v)
+		ok, v, err := unredactibleIt(v, redPref)
 		if err != nil {
 			return nil, err
 		}
