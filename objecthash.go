@@ -222,12 +222,12 @@ func CommonJSONHash(j []byte) ([]byte, error) {
  * Redact stuff
  */
 
-func Redactible(o interface{}) (interface{}, error) {
+func Redactable(o interface{}) (interface{}, error) {
 	switch v := o.(type) {
 	case []interface{}:
-		return redactibleList(v)
+		return redactableList(v)
 	case map[string]interface{}:
-		return redactibleDict(v)
+		return redactableDict(v)
 	default:
 		return o, nil
 	}
@@ -242,7 +242,7 @@ func nonce() (string, error) {
 	return hex.EncodeToString(n), nil
 }
 
-func redactibleIt(p interface{}) (interface{}, error) {
+func redactableIt(p interface{}) (interface{}, error) {
 	n, err := nonce()
 	if err != nil {
 		return nil, err
@@ -250,11 +250,11 @@ func redactibleIt(p interface{}) (interface{}, error) {
 	return []interface{}{n, p}, nil
 }
 
-func redactibleList(p []interface{}) (interface{}, error) {
+func redactableList(p []interface{}) (interface{}, error) {
 	rv := make([]interface{}, len(p))
 	for i, a := range p {
 		var err error
-		rv[i], err = Redactible(a)
+		rv[i], err = Redactable(a)
 		if err != nil {
 			return nil, err
 		}
@@ -262,14 +262,14 @@ func redactibleList(p []interface{}) (interface{}, error) {
 	return rv, nil
 }
 
-func redactibleDict(p map[string]interface{}) (interface{}, error) {
+func redactableDict(p map[string]interface{}) (interface{}, error) {
 	rv := make(map[string]interface{})
 	for k, v := range p {
-		c, err := Redactible(v)
+		c, err := Redactable(v)
 		if err != nil {
 			return nil, err
 		}
-		rv[k], err = redactibleIt(c)
+		rv[k], err = redactableIt(c)
 		if err != nil {
 			return nil, err
 		}
@@ -280,28 +280,28 @@ func redactibleDict(p map[string]interface{}) (interface{}, error) {
 /*
  * Unredact stuff
  */
-func UnredactibleWithStdPrefix(o interface{}) (interface{}, error) {
-	return Unredactible(o, REDACTED_PREFIX)
+func UnredactableWithStdPrefix(o interface{}) (interface{}, error) {
+	return Unredactable(o, REDACTED_PREFIX)
 }
 
-func Unredactible(o interface{}, redPref string) (interface{}, error) {
+func Unredactable(o interface{}, redPref string) (interface{}, error) {
 	switch v := o.(type) {
 	case []interface{}:
-		return unredactibleList(v, redPref)
+		return unredactableList(v, redPref)
 	case map[string]interface{}:
-		return unredactibleDict(v, redPref)
+		return unredactableDict(v, redPref)
 	default:
 		return o, nil
 	}
 }
 
-func unredactibleIt(o interface{}, redPref string) (bool, interface{}, error) {
+func unredactableIt(o interface{}, redPref string) (bool, interface{}, error) {
 	switch v := o.(type) {
 	case []interface{}:
 		if len(v) != 2 {
 			return false, nil, ErrUnrecognizedObjectType
 		}
-		rv, err := Unredactible(v[1], redPref)
+		rv, err := Unredactable(v[1], redPref)
 		if err != nil {
 			return false, nil, err
 		}
@@ -316,11 +316,11 @@ func unredactibleIt(o interface{}, redPref string) (bool, interface{}, error) {
 	}
 }
 
-func unredactibleList(p []interface{}, redPref string) (interface{}, error) {
+func unredactableList(p []interface{}, redPref string) (interface{}, error) {
 	rv := make([]interface{}, len(p))
 	for i, a := range p {
 		var err error
-		rv[i], err = Unredactible(a, redPref)
+		rv[i], err = Unredactable(a, redPref)
 		if err != nil {
 			return nil, err
 		}
@@ -328,10 +328,10 @@ func unredactibleList(p []interface{}, redPref string) (interface{}, error) {
 	return rv, nil
 }
 
-func unredactibleDict(p map[string]interface{}, redPref string) (interface{}, error) {
+func unredactableDict(p map[string]interface{}, redPref string) (interface{}, error) {
 	rv := make(map[string]interface{})
 	for k, v := range p {
-		ok, v, err := unredactibleIt(v, redPref)
+		ok, v, err := unredactableIt(v, redPref)
 		if err != nil {
 			return nil, err
 		}
