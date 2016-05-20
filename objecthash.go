@@ -381,8 +381,8 @@ func (self *Filterer) IsAllowed(path []string) bool {
 
 /* Filter a previously redacted object. */
 // Format of allowed is:  expr(,expr)*
-// Format of expr is:     ident(/ident)*
-// Format if ident is:    either * or not a comma or /
+// Format of expr is:	 ident(/ident)*
+// Format if ident is:	either * or not a comma or /
 func Filtered(o interface{}, allowed string) (interface{}, error) {
 	return filterObj(o, nil, CreateFilterer(allowed))
 }
