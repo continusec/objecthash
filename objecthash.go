@@ -113,6 +113,11 @@ func hashDict(d map[string]interface{}, redPref string) ([]byte, error) {
 }
 
 func floatNormalize(f float64) (string, error) {
+	// special case 0
+	if f == 0.0 {
+		return `+0:`, nil
+	}
+
 	// sign
 	s := `+`
 	if f < 0 {
