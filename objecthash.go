@@ -8,9 +8,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"golang.org/x/text/unicode/norm"
 	"sort"
 	"strings"
+
+	"golang.org/x/text/unicode/norm"
 )
 
 var (
