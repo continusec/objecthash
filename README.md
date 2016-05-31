@@ -1,3 +1,5 @@
+(Note: this repo is a fork from Ben Laurie's objecthash (https://github.com/benlaurie/objecthash) with some additional features and fixes, which hopefully can be incorporated back upstream as time permits - README below is the original)
+
 # objecthash
 
 A way to cryptographically hash objects (in the JSON-ish sense) that works cross-language. And, therefore, cross-encoding.
