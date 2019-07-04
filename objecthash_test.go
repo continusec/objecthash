@@ -3,6 +3,7 @@ package objecthash
 import (
 	"bufio"
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -299,4 +300,53 @@ func TestRedaction(t *testing.T) {
 	testFiltered(t, `{"name": "Adam", "ssn": "1234", "dob": "January 1901", "skills": [{"language": "python", "level": 3}, {"language": "go", "level": 299}]}`, "skills/*", []string{"299", "level", "go", "python"}, []string{"Adam", "1234", "ssn"})
 	testFiltered(t, `{"name": "Adam", "ssn": "1234", "dob": "January 1901", "skills": [{"language": "python", "level": 3}, {"language": "go", "level": 299}]}`, "", []string{}, []string{"Adam", "1234", "ssn", "299", "level", "go", "python"})
 	testFiltered(t, `{"name": "Adam", "ssn": "1234", "dob": "January 1901", "skills": [{"language": "python", "level": 3}, {"language": "go", "level": 299}]}`, "*", []string{"Adam", "1234", "ssn", "299", "level", "go", "python"}, []string{})
+}
+
+func newTestObj() map[string]interface{} {
+	return map[string]interface{}{
+		"a": 123,
+		"b": "abc",
+		"c": []interface{}{1, "d"},
+		"d": false,
+		"e": map[string]interface{}{"a": 999},
+	}
+}
+
+func TestPointRedaction(t *testing.T) {
+	for _, letter := range "abcde" {
+		obj := newTestObj()
+
+		redactable, err := RedactableIt(obj[string(letter)])
+		if err != nil {
+			t.Log(err)
+			t.FailNow()
+		}
+
+		obj[string(letter)] = redactable
+
+		beforeRedaction, err := ObjectHashWithStdRedaction(obj)
+		if err != nil {
+			t.Log(err)
+			t.FailNow()
+		}
+
+		redacted, err := RedactWithStdRedaction(redactable)
+		if err != nil {
+			t.Log(err)
+			t.FailNow()
+		}
+
+		obj[string(letter)] = redacted
+
+		afterRedaction, err := ObjectHashWithStdRedaction(obj)
+		if err != nil {
+			t.Log(err)
+			t.FailNow()
+		}
+
+		if !bytes.Equal(beforeRedaction, afterRedaction) {
+			t.Log("Should be equal:", hex.EncodeToString(beforeRedaction), hex.EncodeToString(afterRedaction))
+			t.FailNow()
+		}
+	}
 }
